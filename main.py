@@ -2,14 +2,17 @@ from typing import Union
 from elasticsearch import Elasticsearch
 from openai import OpenAI
 import spacy
+from dotenv import load_dotenv
+load_dotenv()
+
 from pydantic import BaseModel
 nlp = spacy.load("en_core_web_sm")
-
+import os
 from fastapi import FastAPI
-
+openai_api_key = os.getenv("OPENAIKEY")
+print(openai_api_key)
 app = FastAPI()
-
-client = OpenAI(api_key="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")
+client = OpenAI(api_key=openai_api_key)
 def get_embedding(text, model="text-embedding-ada-002"):
    text = text.replace("\n", " ")
    return client.embeddings.create(input = [text], model=model).data[0].embedding
@@ -53,7 +56,7 @@ async def read_item(q: str,limit:int=20,validatation:bool=True):
             "num_candidates": 1200,
         }
         res = es.knn_search(
-            index="eculdeanfin",
+            index="finalecle",
             knn=query,
             source=["productname", "description", "tags", "categories", "sub_categories","weightage"],
         )
